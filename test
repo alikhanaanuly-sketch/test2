@@ -1,0 +1,502 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#8b5cf6">
+<title>Тест на дружбу 💜</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #fce7f3, #ddd6fe);
+  color: #30254b;
+  min-height: 100vh;
+  overflow-wrap: anywhere;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 22px;
+  padding: 22px 18px;
+  box-shadow: 0 8px 30px #6d28d920;
+}
+
+h1 {
+  font-size: 30px;
+  text-align: center;
+  margin: 8px 0 12px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #6b6280;
+}
+
+.heart {
+  text-align: center;
+  font-size: 42px;
+}
+
+.progress {
+  height: 9px;
+  background: #eee7ff;
+  border-radius: 20px;
+  margin: 20px 0 12px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  background: #8b5cf6;
+  transition: width 0.2s;
+}
+
+.counter {
+  text-align: center;
+  font-size: 15px;
+  margin-bottom: 20px;
+  color: #6b6280;
+}
+
+#question {
+  display: block;
+  font-size: 23px;
+  line-height: 1.45;
+  font-weight: bold;
+  margin: 0 0 22px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.answer {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  padding: 15px;
+  margin: 12px 0;
+  border: 2px solid #e9dfff;
+  border-radius: 15px;
+  background: #fff;
+  color: #30254b;
+  font-size: 17px;
+  line-height: 1.5;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.answer.selected {
+  background: #f0e9ff;
+  border-color: #8b5cf6;
+}
+
+.answer:focus-visible,
+.nav:focus-visible {
+  outline: 3px solid #c084fc;
+  outline-offset: 3px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.nav {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 12px 8px;
+  border: none;
+  border-radius: 14px;
+  background: #8b5cf6;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#back {
+  background: #eee7ff;
+  color: #51358b;
+}
+
+#result {
+  text-align: center;
+}
+
+.score {
+  font-size: 42px;
+  color: #8b5cf6;
+  font-weight: bold;
+  margin: 20px 0;
+}
+
+.result-text {
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 380px) {
+  body {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 18px 14px;
+  }
+
+  h1 {
+    font-size: 27px;
+  }
+
+  #question {
+    font-size: 21px;
+  }
+
+  .answer {
+    font-size: 16px;
+    padding: 13px;
+  }
+
+  .nav {
+    font-size: 14px;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="container">
+
+<section class="card" id="quiz">
+  <div class="heart">💜🤝💜</div>
+  <h1>Тест на дружбу</h1>
+
+  <p class="subtitle">
+    Проверь, насколько ты хороший друг!
+    Ответь на 15 вопросов и узнай свой результат ✨
+  </p>
+
+  <div class="progress">
+    <div class="progress-bar" id="bar"></div>
+  </div>
+
+  <div class="counter" id="counter">Вопрос 1 из 15</div>
+
+  <div id="questionArea">
+    <div id="question"></div>
+    <div id="answers"></div>
+  </div>
+
+  <div class="buttons">
+    <button class="nav" id="back" type="button">← Назад</button>
+    <button class="nav" id="next" type="button" disabled>
+      Далее →
+    </button>
+  </div>
+</section>
+
+<section class="card hidden" id="result">
+  <div class="heart" id="resultEmoji">💜</div>
+  <h1>Твой результат!</h1>
+  <div class="score" id="score"></div>
+  <h2 id="resultTitle"></h2>
+  <p class="result-text" id="resultText"></p>
+  <button class="nav" id="restart" type="button">
+    Пройти ещё раз 🔄
+  </button>
+</section>
+
+</main>
+
+<script>
+const questions = [
+  {
+    q: "1. Как ты поддержишь друга, если ему грустно?",
+    a: [
+      "Выслушаю и помогу",
+      "Попробую его развеселить",
+      "Не обращу внимания"
+    ],
+    s: [2, 2, 0]
+  },
+  {
+    q: "2. Что самое важное в дружбе?",
+    a: [
+      "Доверие и честность",
+      "Популярность",
+      "Подарки и деньги"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "3. Если друг расскажет секрет, ты...",
+    a: [
+      "Сохраню его в тайне",
+      "Расскажу другим",
+      "Расскажу только одному человеку"
+    ],
+    s: [2, 0, 1]
+  },
+  {
+    q: "4. Что ты сделаешь после ссоры?",
+    a: [
+      "Попробую спокойно поговорить",
+      "Буду ждать первого шага",
+      "Перестану общаться"
+    ],
+    s: [2, 1, 0]
+  },
+  {
+    q: "5. Друг добился успеха. Ты...",
+    a: [
+      "Искренне порадуюсь",
+      "Поздравлю его",
+      "Буду завидовать"
+    ],
+    s: [2, 2, 0]
+  },
+  {
+    q: "6. Как часто нужно общаться друзьям?",
+    a: [
+      "Каждый день обязательно",
+      "Можно общаться не каждый день",
+      "Только когда что-то нужно"
+    ],
+    s: [1, 2, 0]
+  },
+  {
+    q: "7. Друг долго не отвечает. Ты...",
+    a: [
+      "Подожду, у него могут быть дела",
+      "Буду писать много сообщений",
+      "Сразу обижусь"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "8. Если вы не согласны друг с другом...",
+    a: [
+      "Уважу его мнение",
+      "Буду доказывать свою правоту",
+      "Начну ссориться"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "9. Кто должен выбирать, чем заняться вместе?",
+    a: [
+      "Только я",
+      "Только мой друг",
+      "Будем выбирать вместе"
+    ],
+    s: [0, 0, 2]
+  },
+  {
+    q: "10. Если друг случайно тебя обидел...",
+    a: [
+      "Объясню, что мне неприятно",
+      "Отомщу ему",
+      "Буду молча обижаться"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "11. Может ли у лучшего друга быть другой друг?",
+    a: [
+      "Да, конечно!",
+      "Нет, только я",
+      "Пусть выбирает между нами"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "12. Друг просит тебя о помощи. Ты...",
+    a: [
+      "Помогу, если смогу",
+      "Сразу откажусь",
+      "Помогу только за что-то взамен"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "13. Друг хочет побыть один. Ты...",
+    a: [
+      "Уважаю его желание",
+      "Буду требовать внимания",
+      "Обижусь на него"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "14. Как ты относишься к шуткам над другом?",
+    a: [
+      "Шучу так, чтобы ему тоже было смешно",
+      "Шучу даже тогда, когда ему неприятно",
+      "Могу обсуждать его с другими"
+    ],
+    s: [2, 0, 0]
+  },
+  {
+    q: "15. Что помогает сохранить дружбу надолго?",
+    a: [
+      "Честность, поддержка и уважение",
+      "Никогда не спорить",
+      "Всегда делать всё одинаково"
+    ],
+    s: [2, 0, 0]
+  }
+];
+
+let current = 0;
+const answers = Array(questions.length).fill(null);
+
+const questionEl = document.getElementById("question");
+const answersEl = document.getElementById("answers");
+const nextBtn = document.getElementById("next");
+const backBtn = document.getElementById("back");
+
+function renderQuestion() {
+  const item = questions[current];
+
+  document.getElementById("counter").textContent =
+    `Вопрос ${current + 1} из ${questions.length}`;
+
+  document.getElementById("bar").style.width =
+    `${((current + 1) / questions.length) * 100}%`;
+
+  questionEl.textContent = item.q;
+  answersEl.replaceChildren();
+
+  item.a.forEach((answer, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "answer";
+
+    if (answers[current] === index) {
+      button.classList.add("selected");
+    }
+
+    button.setAttribute(
+      "aria-pressed",
+      answers[current] === index ? "true" : "false"
+    );
+
+    button.textContent =
+      ["А. ", "Б. ", "В. "][index] + answer;
+
+    button.addEventListener("click", () => {
+      answers[current] = index;
+      renderQuestion();
+    });
+
+    answersEl.appendChild(button);
+  });
+
+  backBtn.disabled = current === 0;
+  nextBtn.disabled = answers[current] === null;
+
+  nextBtn.textContent =
+    current === questions.length - 1
+      ? "Результат ✨"
+      : "Далее →";
+}
+
+nextBtn.addEventListener("click", () => {
+  if (answers[current] === null) return;
+
+  if (current < questions.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+backBtn.addEventListener("click", () => {
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+});
+
+function showResult() {
+  const total = answers.reduce((sum, answer, index) => {
+    return sum + questions[index].s[answer];
+  }, 0);
+
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+
+  document.getElementById("score").textContent = total + " / 30";
+
+  let emoji, title, text;
+
+  if (total >= 25) {
+    emoji = "💜";
+    title = "Ты отличный друг!";
+    text = "Ты умеешь поддерживать, ценишь доверие и уважаешь других. Береги свою дружбу!";
+  } else if (total >= 17) {
+    emoji = "🌟";
+    title = "Ты хороший друг!";
+    text = "У тебя есть отличные качества. Продолжай учиться слушать, помогать и понимать друзей.";
+  } else {
+    emoji = "🌱";
+    title = "Время расти и учиться!";
+    text = "Каждый может стать внимательнее к друзьям. Честность, доброта и уважение помогают укреплять дружбу.";
+  }
+
+  document.getElementById("resultEmoji").textContent = emoji;
+  document.getElementById("resultTitle").textContent = title;
+  document.getElementById("resultText").textContent = text;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.getElementById("restart").addEventListener("click", () => {
+  current = 0;
+  answers.fill(null);
+
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+renderQuestion();
+</script>
+</body>
+</html>
